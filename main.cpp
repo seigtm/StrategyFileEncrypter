@@ -79,7 +79,7 @@ public:
     std::string decrypt(const std::string& text, const std::string&) override {
         std::stringstream decoded;
 
-        for (auto& segmentIterator{ text.begin() }; segmentIterator != text.end(); segmentIterator += 8) {
+        for (auto segmentIterator{ text.begin() }; segmentIterator != text.end(); segmentIterator += 8) {
             std::string segment(segmentIterator, segmentIterator + 8);
             auto ASCII = std::stoull(segment, nullptr, 2);
             decoded << char(ASCII);
