@@ -110,7 +110,6 @@ public:
 // Interface for file encryption using encryption strategies.
 class IFileEncryptor
 {
-
 public:
     void setStrategy(EncryptionStrategy *strat)
     {
@@ -158,8 +157,7 @@ private:
 
 int main()
 {
-    /*
-    const std::string key{"4abc"};
+    const std::string key{"3abc"};
     IFileEncryptor fileEncryptor;
 
     fileEncryptor.setStrategy(new XOREncryptionStrategy);
@@ -173,24 +171,4 @@ int main()
     fileEncryptor.setStrategy(new BinaryEncryptionStrategy);
     fileEncryptor.encrypt(".files/Binary/Binary_Original.txt", ".files/Binary/Binary_Crypted.txt");
     fileEncryptor.decrypt(".files/Binary/Binary_Crypted.txt", ".files/Binary/Binary_Decrypted.txt");
-    */
-
-    
-    std::string key{"4"};
-    std::string text{"abcd..efg..hig..4#$%#.."};
-    std::string result{text};
-
-    for (size_t i = 0; i < text.size(); i++)
-    {
-        result[i] = text[i] ^ key[i % key.size()];
-    }
-
-    std::cout << result << std::endl;
-
-    for (size_t i = 0; i < text.size(); i++)
-    {
-        text[i] = result[i] ^ key[i % key.size()];
-    }
-
-    std::cout << text << std::endl;
 }
