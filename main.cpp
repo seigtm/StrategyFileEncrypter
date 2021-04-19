@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <memory>
+#include <iterator>
 #include <bitset>
 #include <sstream>
 
@@ -17,7 +18,6 @@ public:
 // Concrete encryption strategy using XOR.
 class XOREncryptionStrategy : public EncryptionStrategy
 {
-
 public:
     std::string encrypt(const std::string &text, const std::string &key) override
     {
@@ -26,7 +26,7 @@ public:
             return text;
         }
 
-        std::string output = text;
+        std::string output{text};
 
         for (size_t i = 0; i < text.size(); i++)
         {
@@ -78,7 +78,6 @@ public:
 // Concrete encryption strategy using Binary code.
 class BinaryEncryptionStrategy : public EncryptionStrategy
 {
-
 public:
     std::string encrypt(const std::string &text, const std::string &) override
     {
@@ -111,10 +110,7 @@ public:
 // Interface for file encryption using encryption strategies.
 class IFileEncryptor
 {
-
 public:
-    // IFileEncryptor() = default;
-
     void setStrategy(EncryptionStrategy *strat)
     {
         if (strat)
@@ -123,41 +119,56 @@ public:
         }
     }
 
-    std::string encrypt(const std::string &text, const std::string &key = "")
+    bool encrypt(const std::string &filePathFrom, const std::string &filePathTo, const std::string &key = "")
     {
-        return strategy ? strategy->encrypt(text, key) : text;
+        if (!strategy)
+            return false;
+
+        std::ofstream output(filePathTo, std::ios::trunc);
+        output << strategy->encrypt(getTextFromFile(filePathFrom), key);
+
+        return true;
     }
 
-    std::string decrypt(const std::string &text, const std::string &key = "")
+    bool decrypt(const std::string &filePathFrom, const std::string &filePathTo, const std::string &key = "")
     {
-        return strategy ? strategy->decrypt(text, key) : text;
+        if (!strategy)
+            return false;
+
+        std::ofstream output(filePathTo, std::ios::trunc);
+        output << strategy->decrypt(getTextFromFile(filePathFrom), key);
+
+        return true;
     }
 
 private:
     EncryptionStrategy *strategy;
+
+    std::string getTextFromFile(const std::string &filePath)
+    {
+        return std::string(
+            (std::istreambuf_iterator<char>(
+                *(std::unique_ptr<std::ifstream>(
+                      new std::ifstream(filePath)))
+                     .get())),
+            std::istreambuf_iterator<char>());
+    }
 };
 
 int main()
 {
-    std::string text = "abc";
-    std::string key = "4";
+    const std::string key{"3abc"};
+    IFileEncryptor fileEncryptor;
 
-    IFileEncryptor fileCryptor;
+    fileEncryptor.setStrategy(new XOREncryptionStrategy);
+    fileEncryptor.encrypt(".files/XOR/XOR_Original.txt", ".files/XOR/XOR_Crypted.txt", key);
+    fileEncryptor.decrypt(".files/XOR/XOR_Crypted.txt", ".files/XOR/XOR_Decrypted.txt", key);
 
-    std::cout << "XOR:" << std::endl;
-    fileCryptor.setStrategy(new XOREncryptionStrategy);
-    std::cout << fileCryptor.encrypt(text, key) << std::endl;
-    std::cout << fileCryptor.decrypt("UVW", key) << std::endl
-              << std::endl;
+    fileEncryptor.setStrategy(new CaesarEncryptionStrategy);
+    fileEncryptor.encrypt(".files/Caesar/Caesar_Original.txt", ".files/Caesar/Caesar_Crypted.txt", key);
+    fileEncryptor.decrypt(".files/Caesar/Caesar_Crypted.txt", ".files/Caesar/Caesar_Decrypted.txt", key);
 
-    std::cout << "Caesar:" << std::endl;
-    fileCryptor.setStrategy(new CaesarEncryptionStrategy);
-    std::cout << fileCryptor.encrypt(text, key) << std::endl;
-    std::cout << fileCryptor.decrypt("efg", key) << std::endl
-              << std::endl;
-
-    std::cout << "Binary:" << std::endl;
-    fileCryptor.setStrategy(new BinaryEncryptionStrategy);
-    std::cout << fileCryptor.encrypt(text, "") << std::endl;
-    std::cout << fileCryptor.decrypt("011000010110001001100011", "") << std::endl;
+    fileEncryptor.setStrategy(new BinaryEncryptionStrategy);
+    fileEncryptor.encrypt(".files/Binary/Binary_Original.txt", ".files/Binary/Binary_Crypted.txt");
+    fileEncryptor.decrypt(".files/Binary/Binary_Crypted.txt", ".files/Binary/Binary_Decrypted.txt");
 }
