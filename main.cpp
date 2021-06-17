@@ -6,19 +6,41 @@
 #include <bitset>
 #include <sstream>
 
-// A basic virtual class for std::string encryption strategies.
+/** @brief A basic virtual class for std::string encryption strategies. */
 class EncryptionStrategy
 {
-
 public:
+    /**
+     * @brief Pure virtual text (std::string) encryption method.
+     * 
+     * @param text text to encrypt.
+     * @param key key string, empty by default.
+     * @return encrypted text.
+     */
     virtual std::string encrypt(const std::string &text, const std::string &key = "") = 0;
+
+    /**
+     * @brief Pure virtual text (std::string) decryption method.
+     * 
+     * @param text text to decrypt.
+     * @param key key string, empty by default.
+     * @return decrypted text.
+     */
     virtual std::string decrypt(const std::string &text, const std::string &key = "") = 0;
 };
 
-// Concrete encryption strategy using XOR.
+/** @brief Concrete encryption strategy using XOR. 
+ * Inherted from the base virtual class EncryptionStrategy. */
 class XOREncryptionStrategy : public EncryptionStrategy
 {
 public:
+    /**
+     * @brief Text (std::string) encryption method using XOR.
+     * 
+     * @param text text to encrypt.
+     * @param key key string.
+     * @return encrypted text by XOR.
+     */
     std::string encrypt(const std::string &text, const std::string &key) override
     {
         if (key.empty())
@@ -36,18 +58,35 @@ public:
         return output;
     }
 
+    /**
+     * @brief Text (std::string) decryption method using XOR.
+     * 
+     * @param text text to decrypt.
+     * @param key key string.
+     * @return decrypted text by XOR.
+     */
     std::string decrypt(const std::string &text, const std::string &key) override
     {
         return encrypt(text, key);
     }
 };
 
-// Concrete encryption strategy using Caesar.
+/**
+ * @brief Concrete encryption strategy using Caesar. 
+ * Inherted from the base virtual class EncryptionStrategy.
+ */
 class CaesarEncryptionStrategy : public EncryptionStrategy
 {
     const size_t ASCIISize = 255;
 
 public:
+    /**
+     * @brief Text (std::string) encryption method using Caesar.
+     * 
+     * @param text text to encrypt.
+     * @param key key string.
+     * @return encrypted text by Caesar.
+     */
     std::string encrypt(const std::string &text, const std::string &key) override
     {
         std::string temp{text};
@@ -61,6 +100,13 @@ public:
         return temp;
     }
 
+    /**
+     * @brief Text (std::string) decryption method using Caesar.
+     * 
+     * @param text text to decrypt.
+     * @param key key string.
+     * @return decrypted text by Caesar.
+     */
     std::string decrypt(const std::string &text, const std::string &key) override
     {
         std::string temp{text};
@@ -75,10 +121,17 @@ public:
     }
 };
 
-// Concrete encryption strategy using Binary code.
+/** @brief Concrete encryption strategy using Binary code. 
+ * Inherted from the base virtual class EncryptionStrategy. */
 class BinaryEncryptionStrategy : public EncryptionStrategy
 {
 public:
+    /**
+     * @brief Text (std::string) encryption method using Binary code.
+     * 
+     * @param text text to encrypt.
+     * @return encrypted text by Binary code.
+     */
     std::string encrypt(const std::string &text, const std::string &) override
     {
         std::stringstream temp;
@@ -92,6 +145,12 @@ public:
         return temp.str();
     }
 
+    /**
+     * @brief Text (std::string) decryption method using Binary code.
+     * 
+     * @param text text to decrypt.
+     * @return decrypted text by Binary code.
+     */
     std::string decrypt(const std::string &text, const std::string &) override
     {
         std::stringstream decoded;
@@ -107,10 +166,15 @@ public:
     }
 };
 
-// Interface for file encryption using encryption strategies.
+/** @brief Interface for file encryption using text encryption strategies. */
 class IFileEncryptor
 {
 public:
+    /**
+     * @brief Set the Strategy object.
+     * 
+     * @param strat strategy object to encrypt/decrypt with.
+     */
     void setStrategy(EncryptionStrategy *strat)
     {
         if (strat)
@@ -119,6 +183,14 @@ public:
         }
     }
 
+    /**
+     * @brief Text files encryption method.
+     * 
+     * @param filePathFrom path to the file from which the text is taken for encryption.
+     * @param filePathTo path to the file to which the ecrypted text will be written.
+     * @param key key string, empty by default.
+     * @return true if the encryption strategy object was initialized earlier and false otherwise.
+     */
     bool encrypt(const std::string &filePathFrom, const std::string &filePathTo, const std::string &key = "")
     {
         if (!strategy)
@@ -130,6 +202,14 @@ public:
         return true;
     }
 
+    /**
+     * @brief Text files decryption method.
+     * 
+     * @param filePathFrom path to the file from which the text is taken for decryption.
+     * @param filePathTo path to the file to which the decrypted text will be written.
+     * @param key key string, empty by default.
+     * @return true if the encryption strategy object was initialized earlier and false otherwise.
+     */
     bool decrypt(const std::string &filePathFrom, const std::string &filePathTo, const std::string &key = "")
     {
         if (!strategy)
@@ -142,8 +222,15 @@ public:
     }
 
 private:
+    /** @brief Text encryption strategy object. */
     EncryptionStrategy *strategy;
 
+    /**
+     * @brief Get the text from file object.
+     * 
+     * @param filePath path to text file.
+     * @return std::string (text from file).
+     */
     std::string getTextFromFile(const std::string &filePath)
     {
         return std::string(
