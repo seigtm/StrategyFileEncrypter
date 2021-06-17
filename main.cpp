@@ -155,7 +155,7 @@ public:
     {
         std::stringstream decoded;
 
-        for (auto segmentIterator{text.begin()}; segmentIterator != text.end(); segmentIterator += 8)
+        for (std::string::const_iterator segmentIterator{text.begin()}; segmentIterator != text.end(); segmentIterator += 8)
         {
             std::string segment(segmentIterator, segmentIterator + 8);
             auto ASCII = std::stoull(segment, nullptr, 2);
